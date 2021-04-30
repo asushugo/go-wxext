@@ -2,14 +2,14 @@
 
 ## 简介
 
-* 这是基于(Wxext)[https://www.wxext.cn/]开发的Go版SDK
+* 这是基于[Wxext](https://www.wxext.cn/) 开发的Go版SDK
 * 你可以在此基础上开发业务
 
 
 
 ## 使用说明
 
-示例代码请参考example
+示例代码请参考[example](https://github.com/asushugo/go-wxext/tree/main/example)
 
 1、打开应用中心
 

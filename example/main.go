@@ -11,7 +11,7 @@ import (
 	"time"
 )
 
-func MsgHandler(wx *wxext.Wxext)  {
+func MsgHandler(wx *wxext.Wxext) {
 	for recv := range wx.Recv {
 
 		// 开协程处理信息
@@ -48,7 +48,7 @@ func MsgHandler(wx *wxext.Wxext)  {
 				}
 			} else { // 函数事件
 				switch method {
-				case "getInfo_Recv":  // 执行getInfo的事件
+				case "getInfo_Recv": // 执行getInfo的事件
 					log.Println(m["data"].(map[string]interface{}))
 				case "list_Recv": // method: list
 					log.Println(m)
@@ -63,12 +63,12 @@ func main() {
 	errChan := make(chan error)
 
 	wx := wxext.NewWxext(
-		"WechatBot",
+		"go_wxext",
 		"ABDCE3C5429E3045076F1CE232C40B21",
-		// 如果你反向代理Websocket，可能就需要设置以下选项，否则默认即可
-		wxext.SetAddr("192.168.2.212"),
-		wxext.SetPort(82),
-		wxext.SetWebsocketPort(81),
+		// 如果你反向代理Websocket，可能就需要设置以下选项，否则默认注释即可
+		//wxext.SetAddr("192.168.2.212"),
+		//wxext.SetPort(82),
+		//wxext.SetWebsocketPort(81),
 	)
 
 	err := wx.Conn()
@@ -76,7 +76,7 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// 如果KEY不正确或者Wxext关闭都会导致连接失败
+	// 如果KEY不正确或者Wxext关闭都会导致连接中断
 	go func() {
 		for range wx.ErrChan {
 			log.Fatal("连接中断！")

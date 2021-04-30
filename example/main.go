@@ -87,7 +87,7 @@ func main() {
 	time.Sleep(1 * time.Second)
 
 	log.Println("running......")
-	wx.List()
+	wx.List() // 获取连接列表
 
 	// 监听退出信号
 	go func() {

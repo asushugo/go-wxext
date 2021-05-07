@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"github.com/asushugo/go-wxext/wxext"
+	"io"
 	"log"
 	"os"
 	"os/signal"
@@ -17,11 +18,14 @@ func MsgHandler(wx *wxext.Wxext) {
 		// 开协程处理信息
 		go func(m map[string]interface{}) {
 			method := m["method"].(string)
-
 			// 更多事件请参考
 			// https://www.wxext.cn/home/developer.html#/?id=%e4%ba%8b%e4%bb%b6%e9%80%9a%e7%9f%a5
 			if strings.Index(method, "Recv") == -1 { // 消息事件
-				data := m["data"].(map[string]interface{})
+				data, ok := m["data"].(map[string]interface{})
+				if ok != true {
+					log.Println(m)
+					return
+				}
 				switch method {
 				case "newmsg": // 微信消息事件
 					typeId := int(m["type"].(float64))
@@ -62,16 +66,40 @@ func MsgHandler(wx *wxext.Wxext) {
 func main() {
 	errChan := make(chan error)
 
+	// 输出日志
+	logFile, err := os.OpenFile("log.txt", os.O_RDWR|os.O_CREATE|os.O_APPEND, 0666)
+	if err != nil {
+		panic(err)
+	}
+	defer logFile.Close()
+	mw := io.MultiWriter(os.Stdout, logFile)
+	log.SetOutput(mw)
+
+	// 从环境变量获取Name和Key
+	env := os.Getenv("cn.wxext.app")
+	if env == "" {
+		log.Fatal("环境变量为空！")
+	}
+	envList := strings.Split(env, ";")
+
+	log.Println(fmt.Sprintf("插件名称：%s", envList[0]))
+	log.Println(fmt.Sprintf("Key：%s", envList[1]))
+
+	//wx := wxext.NewWxext(
+	//	"go_wxext",
+	//	"ABDCE3C5429E3045076F1CE232C40B21",
+	//	//如果你反向代理Websocket，可能就需要设置以下选项，否则默认注释即可
+	//	//wxext.SetAddr("192.168.2.212"),
+	//	//wxext.SetPort(82),
+	//	//wxext.SetWebsocketPort(81),
+	//)
+
 	wx := wxext.NewWxext(
-		"go_wxext",
-		"ABDCE3C5429E3045076F1CE232C40B21",
-		// 如果你反向代理Websocket，可能就需要设置以下选项，否则默认注释即可
-		//wxext.SetAddr("192.168.2.212"),
-		//wxext.SetPort(82),
-		//wxext.SetWebsocketPort(81),
+		envList[0], // Name
+		envList[1], // Key
 	)
 
-	err := wx.Conn()
+	err = wx.Conn()
 	if err != nil {
 		log.Fatal(err)
 	}
